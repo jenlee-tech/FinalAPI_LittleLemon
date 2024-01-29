@@ -12,7 +12,7 @@ class CategoryItemsSerializer(serializers.ModelSerializer):
 
 
 class MenuItemSerializer(serializers.ModelSerializer):
-    category = CategoryItemsSerializer()
+    # category = CategoryItemsSerializer()
 
     class Meta:
         model = MenuItem
@@ -20,6 +20,7 @@ class MenuItemSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'price': {'min_value': 2},
         }
+        depth = 1
 
     # id = serializers.IntegerField()
     # title = serializers.CharField(max_length=255)
