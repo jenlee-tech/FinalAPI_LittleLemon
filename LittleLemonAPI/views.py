@@ -15,15 +15,16 @@ class MenuItemsViewSet(generics.ListCreateAPIView):
             items = MenuItem.objects.select_related('category').all()
             category_name = request.query_params.get('category')
             to_price = request.query_params.get('to_price')
+            search = request.query_params.get('search')
             if category_name:
                 items = items.filter(category__title=category_name)
             if to_price:
                 items = items.filter(price__lte=to_price)
+            if search:
+                items = items.filter(title__icontains=search)
+
             serialized_item = MenuItemSerializer(items, many=True)
             return Response(serialized_item.data)
-
-    # ordering_fields = ['price']
-    # search_fields = ['title', 'category__title']
 
 
 class SingleMenuItemViewSet(generics.RetrieveUpdateDestroyAPIView):
