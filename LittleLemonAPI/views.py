@@ -12,7 +12,7 @@ class MenuItemsViewSet(generics.ListCreateAPIView):
     # search_fields = ['title', 'category__title']
 
 
-class SingleMenuItemViewSet(generics.ListAPIView, generics.RetrieveUpdateDestroyAPIView):
+class SingleMenuItemViewSet(generics.RetrieveUpdateDestroyAPIView):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
 
