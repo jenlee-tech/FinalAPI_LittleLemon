@@ -8,12 +8,10 @@ class CategoryItemsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['title', 'id']
+        fields = ['title', 'id', 'slug']
 
 
 class MenuItemSerializer(serializers.ModelSerializer):
-    # category = CategoryItemsSerializer()
-
     class Meta:
         model = MenuItem
         fields = ['id', 'title', 'price', 'category', 'featured']
@@ -21,7 +19,4 @@ class MenuItemSerializer(serializers.ModelSerializer):
             'price': {'min_value': 2},
         }
         depth = 1
-
-    # id = serializers.IntegerField()
-    # title = serializers.CharField(max_length=255)
-    # price = serializers.DecimalField(max_digits=6, decimal_places=2)
+        # comment this out if you want to Post menu item and select a category in the serializer from the Category model, otherwise leave it there to see details of the Category object when listing.
