@@ -8,9 +8,9 @@ from django.core.paginator import Paginator, EmptyPage
 
 # class MenuItemsViewSet(generics.ListCreateAPIView):
 class MenuItemsViewSet(viewsets.ModelViewSet):
-    queryset = MenuItem.objects.all()
+    queryset = MenuItem.objects.all().order_by('id')
     serializer_class = MenuItemSerializer
-    ordering_fields = ['price', 'cateogry']
+    ordering_fields = ['price', 'category']
     search_fields = ['title']
 
     def get(self, request, *args, **kwargs):
