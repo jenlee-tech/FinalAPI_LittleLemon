@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import MenuItem, Category
+from .models import MenuItem, Category, Cart
 
 
 class CategoryItemsSerializer(serializers.ModelSerializer):
@@ -20,3 +20,9 @@ class MenuItemSerializer(serializers.ModelSerializer):
         }
         depth = 1
         # comment this out if you want to Post menu item and select a category in the serializer from the Category model, otherwise leave it there to see details of the Category object when listing.
+
+
+class CartItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cart
+        fields = ['user', 'menuitem', 'quantity', 'unit_price', 'price']

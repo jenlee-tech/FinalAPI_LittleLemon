@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from .models import MenuItem, Category
-from .serializers import MenuItemSerializer, CategoryItemsSerializer
+from .models import MenuItem, Category, Cart
+from .serializers import MenuItemSerializer, CategoryItemsSerializer, CartItemSerializer
 from rest_framework import generics, viewsets
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage
@@ -11,7 +11,7 @@ class MenuItemsViewSet(viewsets.ModelViewSet):
     queryset = MenuItem.objects.all().order_by('id')
     serializer_class = MenuItemSerializer
     ordering_fields = ['price', 'category']
-    search_fields = ['title']
+    search_fields = ['title', 'category__title']
 
     def get(self, request, *args, **kwargs):
         if (request.method == 'GET'):
@@ -60,3 +60,8 @@ class CategoryItemsView(generics.ListCreateAPIView):
 class SingleCategoryViewSet(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategoryItemsSerializer
+
+
+class CartItemViewSet(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartItemSerializer

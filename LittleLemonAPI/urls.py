@@ -9,4 +9,5 @@ urlpatterns = [
          views.MenuItemsViewSet.as_view({'get': 'retrieve'})),
     path('categories/', views.CategoryItemsView.as_view()),
     path('categories/<int:pk>', views.SingleCategoryViewSet.as_view()),
+    path('cart/menu-items/<int:pk>', views.CartItemViewSet.as_view())
 ]
