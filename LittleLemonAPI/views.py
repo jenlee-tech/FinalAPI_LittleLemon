@@ -11,6 +11,7 @@ class MenuItemsViewSet(viewsets.ModelViewSet):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
     ordering_fields = ['price', 'cateogry']
+    search_fields = ['title']
 
     def get(self, request, *args, **kwargs):
         if (request.method == 'GET'):
@@ -20,7 +21,7 @@ class MenuItemsViewSet(viewsets.ModelViewSet):
             to_price = request.query_params.get('to_price')
             search = request.query_params.get('search')
             ordering = request.query_params.get('ordering')
-
+            # below is for query parameters in case user wants to search this way
             perpage = request.query_params.get('perpage', default=2)
             page = request.query_params.get('page', default=1)
 
