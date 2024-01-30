@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from .models import MenuItem, Category
 from .serializers import MenuItemSerializer, CategoryItemsSerializer
-from rest_framework import generics
+from rest_framework import generics, viewsets
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage
 
 
-class MenuItemsViewSet(generics.ListCreateAPIView):
+# class MenuItemsViewSet(generics.ListCreateAPIView):
+class MenuItemsViewSet(viewsets.ModelViewSet):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
     ordering_fields = ['price', 'cateogry']
