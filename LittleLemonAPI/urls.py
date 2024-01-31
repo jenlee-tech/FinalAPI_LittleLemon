@@ -12,4 +12,5 @@ urlpatterns = [
     path('cart/menu-items/<int:pk>', views.CartItemViewSet.as_view()),
     path('orders/<int:pk>', views.OrderViewSet.as_view()),
     path('orderitem/<int:pk>', views.OrderItemViewSet.as_view()),
+    path('secret', views.secret)
 ]

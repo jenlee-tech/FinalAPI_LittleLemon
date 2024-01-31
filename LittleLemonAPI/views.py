@@ -4,6 +4,8 @@ from .serializers import MenuItemSerializer, CategoryItemsSerializer, CartItemSe
 from rest_framework import generics, viewsets
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 
 # class MenuItemsViewSet(generics.ListCreateAPIView):
@@ -75,3 +77,9 @@ class OrderViewSet(generics.RetrieveUpdateAPIView):
 class OrderItemViewSet(generics.RetrieveUpdateAPIView):
     queryset = OrderItem.objects.all()
     serializer_class = OrderItemSerializer
+
+
+@api_view()
+@permission_classes([IsAuthenticated])
+def secret(request):
+    return Response({"message": "Some secret message"})
