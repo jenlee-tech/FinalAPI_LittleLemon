@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from .models import MenuItem, Category, Cart
-from .serializers import MenuItemSerializer, CategoryItemsSerializer, CartItemSerializer
+from .models import MenuItem, Category, Cart, Order, OrderItem
+from .serializers import MenuItemSerializer, CategoryItemsSerializer, CartItemSerializer, OrderSerializer, OrderItemSerializer
 from rest_framework import generics, viewsets
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage
@@ -65,3 +65,13 @@ class SingleCategoryViewSet(generics.RetrieveUpdateDestroyAPIView):
 class CartItemViewSet(generics.RetrieveUpdateDestroyAPIView):
     queryset = Cart.objects.all()
     serializer_class = CartItemSerializer
+
+
+class OrderViewSet(generics.RetrieveUpdateAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+
+
+class OrderItemViewSet(generics.RetrieveUpdateAPIView):
+    queryset = OrderItem.objects.all()
+    serializer_class = OrderItemSerializer
