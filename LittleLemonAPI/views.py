@@ -4,8 +4,9 @@ from .serializers import MenuItemSerializer, CategoryItemsSerializer, CartItemSe
 from rest_framework import generics, viewsets
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.throttling import AnonRateThrottle
 
 
 # class MenuItemsViewSet(generics.ListCreateAPIView):
@@ -92,4 +93,11 @@ def manager_view(request):
     if request.user.groups.filter(name="Manager").exists():
         return Response({"message": "Success! = The manager should see this"})
     else:
-        return Response({"message": "This is only for the manager to see"}, 403)
+        return Response({"message": "You are not authorized to view this"}, 403)
+
+
+@api_view()
+# controlling the throttle rates for anonymous users
+@throttle_classes([AnonRateThrottle])
+def throttle_check(request):
+    return Response({"message": "successful"})
