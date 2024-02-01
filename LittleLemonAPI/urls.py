@@ -16,5 +16,6 @@ urlpatterns = [
     path('orderitem/<int:pk>', views.OrderItemViewSet.as_view()),
     path('secret', views.secret),
     # this will help user generate a token at this endpoint
-    path('api-token-auth/', obtain_auth_token)
+    path('api-token-auth/', obtain_auth_token),
+    path('manager-view/', views.manager_view)
 ]

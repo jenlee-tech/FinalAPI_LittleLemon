@@ -83,3 +83,13 @@ class OrderItemViewSet(generics.RetrieveUpdateAPIView):
 @permission_classes([IsAuthenticated])
 def secret(request):
     return Response({"message": "Some secret message"})
+
+
+# this checks if an authenticated user belongs in a group
+@api_view()
+@permission_classes([IsAuthenticated])
+def manager_view(request):
+    if request.user.groups.filter(name="Manager").exists():
+        return Response({"message": "Success! = The manager should see this"})
+    else:
+        return Response({"message": "This is only for the manager to see"}, 403)
