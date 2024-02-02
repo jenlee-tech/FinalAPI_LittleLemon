@@ -11,6 +11,7 @@ from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 
 # class MenuItemsViewSet(generics.ListCreateAPIView):
 class MenuItemsViewSet(viewsets.ModelViewSet):
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
     queryset = MenuItem.objects.all().order_by('id')
     serializer_class = MenuItemSerializer
     ordering_fields = ['price', 'category']
