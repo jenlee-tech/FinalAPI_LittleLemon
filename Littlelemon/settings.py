@@ -142,9 +142,14 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 2,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
+        # remove later during production - this is used with the admin panel of Djsor.
+        'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_THROTTLE_RATES': {
         'anon': '3/minute',  # for anonymous users
         'user': '20/minute',  # for authenticated users
     }
+}
+DJOSER = {
+    'USER_ID_FIELD': 'username',
 }
