@@ -7,9 +7,11 @@ from django.core.paginator import Paginator, EmptyPage
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
-
+from rest_framework.permissions import IsAdminUser
 
 # class MenuItemsViewSet(generics.ListCreateAPIView):
+
+
 class MenuItemsViewSet(viewsets.ModelViewSet):
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     queryset = MenuItem.objects.all().order_by('id')
@@ -110,3 +112,11 @@ def throttle_check(request):
 @throttle_classes([UserRateThrottle])
 def throttle_check_authenticated(request):
     return Response({"message": "authenticated users throttle rate successful"})
+
+# must keep
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def managers(request):
+    return Response({"message": "ok"})

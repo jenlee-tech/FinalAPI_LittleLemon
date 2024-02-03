@@ -20,5 +20,6 @@ urlpatterns = [
     path('manager-view/', views.manager_view),
     path('throttle-check', views.throttle_check),
     path('throttle-check-authenticated', views.throttle_check_authenticated),
+    path('groups/manager/users', views.managers),
 
 ]
