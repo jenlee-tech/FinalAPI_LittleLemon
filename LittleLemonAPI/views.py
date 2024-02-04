@@ -117,14 +117,18 @@ def throttle_check_authenticated(request):
 # /api/groups/manager/users endpoint
 
 
-@api_view(['POST'])
+@api_view(['POST', 'DELETE'])
 @permission_classes([IsAdminUser])
 def managers(request):
-    username: request.data("username")
+    username = request.data["username"]
     if username:
-        username = get_object_or_404(User, username=username)
+        user = get_object_or_404(User, username=username)
         managers = Group.objects.get(name="Manager")
-        managers.user_set.add(username)
-        return Response({"message": "ok"})
+        if request.method == 'POST':
+            managers.user_set.add(user)
+            return Response({"message": "ok - the user was added"})
+        elif request.method == 'DELETE':
+            managers.user_set.remove(user)
+            return Response({"message": "ok - the user was removed from the manager group"})
 
     return Response({"message": "error"}, status.HTTP_400_BAD_REQUEST)
