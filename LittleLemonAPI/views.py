@@ -1,14 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import MenuItem, Category, Cart, Order, OrderItem
 from .serializers import MenuItemSerializer, CategoryItemsSerializer, CartItemSerializer, OrderSerializer, OrderItemSerializer
-from rest_framework import generics, viewsets
+from rest_framework import generics, viewsets, status
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.permissions import IsAdminUser
-
+from django.contrib.auth.models import User, Group
 # class MenuItemsViewSet(generics.ListCreateAPIView):
 
 
@@ -113,10 +113,18 @@ def throttle_check(request):
 def throttle_check_authenticated(request):
     return Response({"message": "authenticated users throttle rate successful"})
 
-# must keep
+# must keep which enables managers to add users to a manager groups
+# /api/groups/manager/users endpoint
 
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
 def managers(request):
-    return Response({"message": "ok"})
+    username: request.data("username")
+    if username:
+        username = get_object_or_404(User, username=username)
+        managers = Group.objects.get(name="Manager")
+        managers.user_set.add(username)
+        return Response({"message": "ok"})
+
+    return Response({"message": "error"}, status.HTTP_400_BAD_REQUEST)
