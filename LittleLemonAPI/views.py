@@ -77,16 +77,30 @@ class SingleMenuItemViewSet(generics.RetrieveUpdateDestroyAPIView):
         else:
             return Response({"message": "You do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
 
+    # def update(self, request, *args, **kwargs):
+    #     if request.user.groups.filter(name="Manager").exists():
+    #         item_id = request.data.get('id')
+    #         if item_id is not None:
+    #             serialized_item = MenuItemSerializer(data=request.data)
+    #             serialized_item.is_valid(raise_exception=True)
+    #             serialized_item.save()
+    #             return Response(serialized_item.data, status.HTTP_202_ACCEPTED)
+    #         else:
+    #             return Response({"message": "This item doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
+    #     else:
+    #         return Response({"message": "You do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
+
     def update(self, request, *args, **kwargs):
         if request.user.groups.filter(name="Manager").exists():
-            item_id = request.data.get('id')
-            if item_id is not None:
-                serialized_item = MenuItemSerializer(data=request.data)
-                serialized_item.is_valid(raise_exception=True)
-                serialized_item.save()
-                return Response(serialized_item.data, status.HTTP_202_ACCEPTED)
-            else:
+            # 'pk' is the primary key parameter from the URL
+            item_id = kwargs.get('pk')
+            if not MenuItem.objects.filter(pk=item_id).exists():
                 return Response({"message": "This item doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
+            serialized_item = MenuItemSerializer(
+                self.get_object(), data=request.data)
+            serialized_item.is_valid(raise_exception=True)
+            serialized_item.save()
+            return Response(serialized_item.data, status=status.HTTP_200_OK)
         else:
             return Response({"message": "You do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
 
