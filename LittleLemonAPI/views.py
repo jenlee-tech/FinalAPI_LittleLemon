@@ -12,7 +12,7 @@ from django.contrib.auth.models import User, Group
 # class MenuItemsViewSet(generics.ListCreateAPIView):
 
 
-class MenuItemsViewSet(viewsets.ModelViewSet):
+class MenuItemsViewSet(generics.ListCreateAPIView):
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     queryset = MenuItem.objects.all().order_by('id')
     serializer_class = MenuItemSerializer
