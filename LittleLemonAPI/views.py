@@ -52,20 +52,15 @@ class MenuItemsViewSet(viewsets.ModelViewSet):
             serialized_item = MenuItemSerializer(items, many=True)
             return Response(serialized_item.data)
 
-    def http_method_not_allowed(self, request, *args, **kwargs):
-        # Customize the response for MethodNotAllowed to return a 403 Forbidden error
-        response_data = {
-            'detail': 'Method not allowed. You do not have permission to perform this action.'}
-        return Response(response_data, status=status.HTTP_403_FORBIDDEN)
-
-    # @api_view()
-    # @permission_classes([IsAuthenticated])
+    @permission_classes([IsAuthenticated])
     def create(self, request, *args, **kwargs):
-        # if request.method == 'POST':
-        serialized_item = MenuItemSerializer(data=request.data)
-        serialized_item.is_valid(raise_exception=True)
-        serialized_item.save()
-        return Response(serialized_item.data, status.HTTP_201_CREATED)
+        if request.user.groups.filter(name="Manager").exists():
+            serialized_item = MenuItemSerializer(data=request.data)
+            serialized_item.is_valid(raise_exception=True)
+            serialized_item.save()
+            return Response(serialized_item.data, status.HTTP_201_CREATED)
+        else:
+            return Response({"message": "You do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
 
 
 class SingleMenuItemViewSet(generics.RetrieveUpdateDestroyAPIView):
