@@ -95,6 +95,22 @@ class SingleMenuItemViewSet(generics.RetrieveUpdateDestroyAPIView):
         else:
             return Response({"message": "You do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
 
+    def put(self, request, *args, **kwargs):
+        if request.user.groups.filter(name="Manager").exists():
+            # 'pk' is the primary key parameter from the URL
+            item_id = kwargs.get('pk')
+            instance = self.get_object()
+
+            if not instance:
+                return Response({"message": "This item doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
+
+            serialized_item = MenuItemSerializer(instance, data=request.data)
+            serialized_item.is_valid(raise_exception=True)
+            serialized_item.save()
+            return Response(serialized_item.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "You do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
+
 
 class CategoryItemsView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
