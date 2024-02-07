@@ -13,6 +13,7 @@ class CategoryItemsSerializer(serializers.ModelSerializer):
 
 class MenuItemSerializer(serializers.ModelSerializer):
     # category = serializers.SerializerMethodField()
+    category = serializers.CharField(source='category.title', read_only=True)
 
     class Meta:
         model = MenuItem
@@ -20,7 +21,7 @@ class MenuItemSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'price': {'min_value': 2},
         }
-        # depth = 1
+        depth = 1
         # comment this out if you want to Post menu item and select a category in the serializer from the Category model, otherwise leave it there to see details of the Category object when listing.
 
     # def get_category(self, obj):
