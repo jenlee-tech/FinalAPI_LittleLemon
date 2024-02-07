@@ -4,12 +4,28 @@ from . import views
 from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
+<<<<<<< HEAD
+||||||| cdf9ed7... switched back to model view class in order to use pagination
+    # path('menu-items/<int:pk>', views.SingleMenuItemViewSet.as_view()),
+=======
+    # path('menu-items/', views.MenuItemsViewSet.as_view()),
+    # path('menu-items/<int:pk>', views.SingleMenuItemViewSet.as_view()),
+>>>>>>> parent of cdf9ed7... switched back to model view class in order to use pagination
     path('menu-items/',
+<<<<<<< HEAD
          views.MenuItemsViewSet.as_view({
              'get': 'list',
              'post': 'create'
          })),
 
+||||||| cdf9ed7... switched back to model view class in order to use pagination
+         views.MenuItemsViewSet.as_view({
+             'get': 'list',
+             'create': 'create'
+         })),
+=======
+         views.MenuItemsViewSet.as_view()),
+>>>>>>> parent of cdf9ed7... switched back to model view class in order to use pagination
     path('menu-items/<int:pk>',
          views.SingleMenuItemViewSet.as_view()),
     path('categories/', views.CategoryItemsView.as_view()),
