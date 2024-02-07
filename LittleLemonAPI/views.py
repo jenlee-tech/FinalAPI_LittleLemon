@@ -53,7 +53,7 @@ class MenuItemsViewSet(viewsets.ModelViewSet):
             return Response(serialized_item.data)
 
     @permission_classes([IsAuthenticated])
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         if request.user.groups.filter(name="Manager").exists():
             serialized_item = MenuItemSerializer(data=request.data)
             serialized_item.is_valid(raise_exception=True)
