@@ -4,12 +4,12 @@ from . import views
 from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
+    # path('menu-items/<int:pk>', views.SingleMenuItemViewSet.as_view()),
     path('menu-items/',
          views.MenuItemsViewSet.as_view({
              'get': 'list',
-             'post': 'create'
+             'create': 'create'
          })),
-
     path('menu-items/<int:pk>',
          views.SingleMenuItemViewSet.as_view()),
     path('categories/', views.CategoryItemsView.as_view()),
