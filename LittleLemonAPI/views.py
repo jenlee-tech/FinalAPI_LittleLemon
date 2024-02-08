@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from .models import MenuItem, Category, Cart, Order, OrderItem
-from .serializers import MenuItemSerializer, CategoryItemsSerializer, CartItemSerializer, OrderSerializer, OrderItemSerializer
+from .serializers import MenuItemSerializer, CategoryItemsSerializer, CartItemSerializer, OrderSerializer, OrderItemSerializer, UserSerializer
 from rest_framework import generics, viewsets, status
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage
@@ -9,10 +9,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.permissions import IsAdminUser
 from django.contrib.auth.models import User, Group
-# class MenuItemsViewSet(generics.ListCreateAPIView):
+from .permissions import IsManager, IsCustomer
 
 
-# class MenuItemsViewSet(generics.ListCreateAPIView):
 class MenuItemsViewSet(viewsets.ModelViewSet):
     throttle_classes = [AnonRateThrottle, UserRateThrottle]
     queryset = MenuItem.objects.all().order_by('id')
@@ -53,7 +52,7 @@ class MenuItemsViewSet(viewsets.ModelViewSet):
             serialized_item = MenuItemSerializer(items, many=True)
             return Response(serialized_item.data)
 
-    @permission_classes([IsAuthenticated])
+    @permission_classes([IsAuthenticated, IsCustomer])
     def post(self, request, *args, **kwargs):
         if request.user.groups.filter(name="Manager").exists():
             def create(self, request, *args, **kwargs):
@@ -127,6 +126,26 @@ class SingleCategoryViewSet(generics.RetrieveUpdateDestroyAPIView):
 class CartItemViewSet(generics.RetrieveUpdateDestroyAPIView):
     queryset = Cart.objects.all()
     serializer_class = CartItemSerializer
+    # @permission_classes([IsAuthenticated, IsCustomer])
+
+    def get(self, request):
+        user = request.user
+        carts = Cart.objects.filter(user=user)
+        serializer = CartItemSerializer(carts, many=True)
+        if request.user.groups.filter(name="Customer").exists():
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "U do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
+
+    def post(self, request):
+        if request.user.groups.filter(name="Customer").exists():
+            serializer = CartItemSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response("Hello! - Not authorized...", status=status.HTTP_400_BAD_REQUEST)
 
 
 class OrderViewSet(generics.RetrieveUpdateAPIView):
