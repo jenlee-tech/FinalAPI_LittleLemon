@@ -137,6 +137,7 @@ class CartItemViewSet(generics.RetrieveUpdateDestroyAPIView):
         else:
             return Response({"message": "U do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
 
+    @permission_classes([IsAuthenticated])
     def post(self, request):
         if request.user.groups.filter(name="Customer").exists():
             serializer = CartItemSerializer(data=request.data)
