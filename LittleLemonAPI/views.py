@@ -126,8 +126,8 @@ class SingleCategoryViewSet(generics.RetrieveUpdateDestroyAPIView):
 class CartItemViewSet(generics.RetrieveUpdateDestroyAPIView):
     queryset = Cart.objects.all()
     serializer_class = CartItemSerializer
-    # @permission_classes([IsAuthenticated, IsCustomer])
 
+    @permission_classes([IsAuthenticated])
     def get(self, request):
         user = request.user
         carts = Cart.objects.filter(user=user)
@@ -137,7 +137,6 @@ class CartItemViewSet(generics.RetrieveUpdateDestroyAPIView):
         else:
             return Response({"message": "U do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
 
-    @permission_classes([IsAuthenticated])
     def post(self, request):
         if request.user.groups.filter(name="Customer").exists():
             serializer = CartItemSerializer(data=request.data)
@@ -147,6 +146,30 @@ class CartItemViewSet(generics.RetrieveUpdateDestroyAPIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response("Hello! - Not authorized...", status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request):
+        if request.user.groups.filter(name="Customer").exists():
+            # Extract attributes from request payload
+            user_id = request.data.get('user')
+            menuitem_id = request.data.get('menuitem')
+
+            # Validate user_id and menuitem_id
+            if not user_id or not menuitem_id:
+                return Response("User ID and MenuItem ID are required", status=status.HTTP_400_BAD_REQUEST)
+
+            # Filter queryset based on payload attributes
+            queryset = Cart.objects.filter(
+                user_id=user_id, menuitem_id=menuitem_id)
+
+            # Check if any items match the queryset
+            if queryset.exists():
+                # Delete items matching the queryset
+                queryset.delete()
+                return Response({"message": "Item deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response("No items to delete", status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response("Not authorized", status=status.HTTP_403_FORBIDDEN)
 
 
 class OrderViewSet(generics.RetrieveUpdateAPIView):
