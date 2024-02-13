@@ -113,16 +113,6 @@ class SingleMenuItemViewSet(generics.RetrieveUpdateDestroyAPIView):
             return Response({"message": "You do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
 
 
-class CategoryItemsView(generics.ListCreateAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategoryItemsSerializer
-
-
-class SingleCategoryViewSet(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Category.objects.all()
-    serializer_class = CategoryItemsSerializer
-
-
 class CartItemViewSet(generics.RetrieveUpdateDestroyAPIView):
     queryset = Cart.objects.all()
     serializer_class = CartItemSerializer
@@ -172,14 +162,44 @@ class CartItemViewSet(generics.RetrieveUpdateDestroyAPIView):
             return Response("Not authorized", status=status.HTTP_403_FORBIDDEN)
 
 
-class OrderViewSet(generics.RetrieveUpdateAPIView):
+class OrderViewSet(generics.ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+
+        if request.user.groups.filter(name="Customer").exists():
+            orders = Order.objects.filter(user=user)
+            serializer = OrderSerializer(orders, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        if request.user.groups.filter(name="Manager").exists():
+            orders = Order.objects.all()
+            serializer = OrderSerializer(orders, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # def get(self, request, *args, **kwargs):
+    #     if (request.method == 'GET'):
+    #         # example query strings - this is for api/menu-items?category=Appetizer
+    #         items = OrderItem.objects.all()
+    #         return Response(items, status=status.HTTP_200_OK)
 
 
 class OrderItemViewSet(generics.RetrieveUpdateAPIView):
     queryset = OrderItem.objects.all()
     serializer_class = OrderItemSerializer
+
+
+class CategoryItemsView(generics.ListCreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategoryItemsSerializer
+
+
+class SingleCategoryViewSet(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategoryItemsSerializer
 
 
 @api_view()
