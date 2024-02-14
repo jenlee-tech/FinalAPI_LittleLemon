@@ -197,8 +197,21 @@ class OrderItemViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self, *args, **kwargs):
-        query = OrderItem.objects.filter(order_id=self.kwargs['pk'])
-        return query
+        user = self.request.user
+        pk = self.kwargs.get('pk')
+        if user.id == int(pk):
+            query = OrderItem.objects.filter(order_id=self.kwargs['pk'])
+            return query
+        else:
+            return OrderItem.objects.none()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        if queryset.exists():
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+        else:
+            return Response({"message": "You can't get other people's order items"}, status=status.HTTP_403_FORBIDDEN)
 
     # def post(self, request, *args, **kwargs):
     #     if request.user.groups.filter(name="Customer").exists():
