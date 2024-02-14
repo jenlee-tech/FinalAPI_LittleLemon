@@ -174,8 +174,7 @@ class OrderViewSet(generics.ListCreateAPIView):
             orders = Order.objects.filter(user=user)
             serializer = OrderSerializer(orders, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
-        if request.user.groups.filter(name="Manager").exists():
+        else:
             orders = Order.objects.all()
             serializer = OrderSerializer(orders, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
