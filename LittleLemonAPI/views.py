@@ -200,7 +200,7 @@ class OrderItemViewSet(viewsets.ModelViewSet):
         user = self.request.user
         pk = self.kwargs.get('pk')
         if user.id == int(pk):
-            query = OrderItem.objects.filter(order_id=self.kwargs['pk'])
+            query = OrderItem.objects.filter(order_id=pk)
             return query
         else:
             return OrderItem.objects.none()
@@ -213,34 +213,14 @@ class OrderItemViewSet(viewsets.ModelViewSet):
         else:
             return Response({"message": "You can't get other people's order items"}, status=status.HTTP_403_FORBIDDEN)
 
-    # def post(self, request, *args, **kwargs):
-    #     if request.user.groups.filter(name="Customer").exists():
-    #         serialized_item = OrderItemSerializer(data=request.data)
-    #         serialized_item.is_valid(raise_exception=True)
-    #         serialized_item.save()
-    #         return Response(serialized_item.data, status.HTTP_201_CREATED)
-    #     else:
-    #         return Response({"message": "You do not have permission to do this as a non customer"}, status=status.HTTP_403_FORBIDDEN)
-
-    # def patch(self, request, *args, **kwargs):
-    #     if request.user.group.filter(name="Manager").exists():
-    #         # item_id = kwargs.get('pk')
-    #         # if not OrderItem.objects.filter(order_id=item_id):
-    #         #     return Response({"message": "This order item doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
-    #         # else:
-    #         #     serialized_item = OrderItemSerializer(
-    #         #         self.get_object(), data=request.data)
-    #         #     serialized_item.is_valid(raise_exception=True)
-    #         #     serialized_item.save()
-    #         #     return Response(serialized_item.data, status=status.HTTP_200_OK)
-
-    #         order = OrderItem.objects.get(pk=self.kwargs['pk'])
-    #         order.status = not order.status
-    #         order.save()
-    #         return JsonResponse(status=200, data={'message': 'Status of order #' + str(order.id)+' changed to '+str(order.status)})
-
-    #     else:
-    #         return Response({"message": "You do not have permission to edit this order item"}, status=status.HTTP_403_FORBIDDEN)
+    def post(self, request, *args, **kwargs):
+        if request.user.groups.filter(name="Customer").exists():
+            serialized_item = OrderItemSerializer(data=request.data)
+            serialized_item.is_valid(raise_exception=True)
+            serialized_item.save()
+            return Response(serialized_item.data, status.HTTP_201_CREATED)
+        else:
+            return Response({"message": "You do not have permission to do this as a non customer"}, status=status.HTTP_403_FORBIDDEN)
 
 
 class CategoryItemsView(generics.ListCreateAPIView):

@@ -14,7 +14,9 @@ urlpatterns = [
     path('cart/menu-items/<int:pk>', views.CartItemViewSet.as_view()),
     path('orders/', views.OrderViewSet.as_view()),
     path('orders/<int:pk>/',
-         views.OrderItemViewSet.as_view({'get': 'list'})),
+         views.OrderItemViewSet.as_view({'get': 'list', 'patch': 'update', 'post': 'post'})),
+    #     path('orders/<int:pk>/',
+    #          views.OrderItemViewSet.as_view()),
     path('secret', views.secret),
     # this will help user generate a token at this endpoint
     path('api-token-auth/', obtain_auth_token),
