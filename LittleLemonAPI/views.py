@@ -52,7 +52,7 @@ class MenuItemsViewSet(viewsets.ModelViewSet):
             serialized_item = MenuItemSerializer(items, many=True)
             return Response(serialized_item.data)
 
-    @permission_classes([IsAuthenticated, IsCustomer])
+    @permission_classes([IsAuthenticated])
     def post(self, request, *args, **kwargs):
         if request.user.groups.filter(name="Manager").exists():
             def create(self, request, *args, **kwargs):
@@ -192,9 +192,23 @@ class OrderViewSet(generics.ListCreateAPIView):
             return Response("Hello! - Not authorized to post for this customer...", status=status.HTTP_400_BAD_REQUEST)
 
 
-class OrderItemViewSet(generics.RetrieveUpdateAPIView):
+class OrderItemViewSet(generics.ListCreateAPIView):
     queryset = OrderItem.objects.all()
     serializer_class = OrderItemSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self, *args, **kwargs):
+        query = OrderItem.objects.filter(order_id=self.kwargs['pk'])
+        return query
+
+    def post(self, request, *args, **kwargs):
+        if request.user.groups.filter(name="Customer").exists():
+            serialized_item = OrderItemSerializer(data=request.data)
+            serialized_item.is_valid(raise_exception=True)
+            serialized_item.save()
+            return Response(serialized_item.data, status.HTTP_201_CREATED)
+        else:
+            return Response({"message": "You do not have permission to do this as a non customer"}, status=status.HTTP_403_FORBIDDEN)
 
 
 class CategoryItemsView(generics.ListCreateAPIView):
