@@ -67,8 +67,8 @@ class MenuItemsViewSet(viewsets.ModelViewSet):
 class SingleMenuItemViewSet(generics.RetrieveUpdateDestroyAPIView):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
+    permission_classes = [IsAuthenticated]
 
-    @permission_classes([IsAuthenticated])
     def delete(self, request, *args, **kwargs):
         if request.user.groups.filter(name="Manager").exists():
             # 'pk' is the primary key parameter from the URL
@@ -191,7 +191,7 @@ class OrderViewSet(generics.ListCreateAPIView):
             return Response("Hello! - Not authorized to post for this customer...", status=status.HTTP_400_BAD_REQUEST)
 
 
-class OrderItemViewSet(generics.ListCreateAPIView):
+class OrderItemViewSet(viewsets.ModelViewSet):
     queryset = OrderItem.objects.all()
     serializer_class = OrderItemSerializer
     permission_classes = [IsAuthenticated]
@@ -200,14 +200,34 @@ class OrderItemViewSet(generics.ListCreateAPIView):
         query = OrderItem.objects.filter(order_id=self.kwargs['pk'])
         return query
 
-    def post(self, request, *args, **kwargs):
-        if request.user.groups.filter(name="Customer").exists():
-            serialized_item = OrderItemSerializer(data=request.data)
-            serialized_item.is_valid(raise_exception=True)
-            serialized_item.save()
-            return Response(serialized_item.data, status.HTTP_201_CREATED)
-        else:
-            return Response({"message": "You do not have permission to do this as a non customer"}, status=status.HTTP_403_FORBIDDEN)
+    # def post(self, request, *args, **kwargs):
+    #     if request.user.groups.filter(name="Customer").exists():
+    #         serialized_item = OrderItemSerializer(data=request.data)
+    #         serialized_item.is_valid(raise_exception=True)
+    #         serialized_item.save()
+    #         return Response(serialized_item.data, status.HTTP_201_CREATED)
+    #     else:
+    #         return Response({"message": "You do not have permission to do this as a non customer"}, status=status.HTTP_403_FORBIDDEN)
+
+    # def patch(self, request, *args, **kwargs):
+    #     if request.user.group.filter(name="Manager").exists():
+    #         # item_id = kwargs.get('pk')
+    #         # if not OrderItem.objects.filter(order_id=item_id):
+    #         #     return Response({"message": "This order item doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
+    #         # else:
+    #         #     serialized_item = OrderItemSerializer(
+    #         #         self.get_object(), data=request.data)
+    #         #     serialized_item.is_valid(raise_exception=True)
+    #         #     serialized_item.save()
+    #         #     return Response(serialized_item.data, status=status.HTTP_200_OK)
+
+    #         order = OrderItem.objects.get(pk=self.kwargs['pk'])
+    #         order.status = not order.status
+    #         order.save()
+    #         return JsonResponse(status=200, data={'message': 'Status of order #' + str(order.id)+' changed to '+str(order.status)})
+
+    #     else:
+    #         return Response({"message": "You do not have permission to edit this order item"}, status=status.HTTP_403_FORBIDDEN)
 
 
 class CategoryItemsView(generics.ListCreateAPIView):
