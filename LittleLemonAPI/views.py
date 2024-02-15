@@ -214,6 +214,29 @@ class OrderViewSet(generics.ListCreateAPIView):
         else:
             return Response("Hello! - Not authorized to update for this user...", status=status.HTTP_400_BAD_REQUEST)
 
+    def put(self, request, *args, **kwargs):
+        user = request.user
+        if user.groups.filter(name="Manager").exists():
+            order_id = request.data.get('id')
+            if order_id is not None:
+                try:
+                    # Retrieve the order object based on the provided id
+                    order = Order.objects.get(id=order_id)
+                except Order.DoesNotExist:
+                    return Response(f"Order with id {order_id} does not exist", status=status.HTTP_404_NOT_FOUND)
+
+                # Update the order object with data from request.data
+                serializer = OrderSerializer(order, data=request.data)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response("Order id is missing from the payload", status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response("Hello! - Not authorized to update for this user...", status=status.HTTP_400_BAD_REQUEST)
+
 
 class OrderItemViewSet(viewsets.ModelViewSet):
     queryset = OrderItem.objects.all()
