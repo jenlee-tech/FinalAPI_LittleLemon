@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
 from .models import MenuItem, Category, Cart, Order, OrderItem
-from .serializers import MenuItemSerializer, CategoryItemsSerializer, CartItemSerializer, OrderSerializer, OrderItemSerializer, UserSerializer
+from .serializers import MenuItemSerializer, CategoryItemsSerializer, CartItemSerializer, OrderSerializer, OrderItemSerializer, UserSerializer, OrderPutSerializer
 from rest_framework import generics, viewsets, status
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage
@@ -202,6 +203,8 @@ class OrderItemViewSet(viewsets.ModelViewSet):
         if user.id == int(pk):
             query = OrderItem.objects.filter(order_id=pk)
             return query
+        elif user.groups.filter(name='Manager').exists():
+            return OrderItem.objects.all()
         else:
             return OrderItem.objects.none()
 
@@ -213,14 +216,16 @@ class OrderItemViewSet(viewsets.ModelViewSet):
         else:
             return Response({"message": "You can't get other people's order items"}, status=status.HTTP_403_FORBIDDEN)
 
-    def post(self, request, *args, **kwargs):
-        if request.user.groups.filter(name="Customer").exists():
-            serialized_item = OrderItemSerializer(data=request.data)
-            serialized_item.is_valid(raise_exception=True)
-            serialized_item.save()
-            return Response(serialized_item.data, status.HTTP_201_CREATED)
-        else:
-            return Response({"message": "You do not have permission to do this as a non customer"}, status=status.HTTP_403_FORBIDDEN)
+    def put(self, request, *args, **kwargs):
+        serialized_item = OrderPutSerializer(data=request.data)
+        serialized_item.is_valid(raise_exception=True)
+        order_pk = self.kwargs['pk']
+        crew_pk = request.data['delivery_crew']
+        order = get_object_or_404(Order, pk=order_pk)
+        crew = get_object_or_404(User, pk=crew_pk)
+        order.delivery_crew = crew
+        order.save()
+        return JsonResponse(status=201, data={'message': str(crew.username)+' was assigned to order #'+str(order.id)})
 
 
 class CategoryItemsView(generics.ListCreateAPIView):

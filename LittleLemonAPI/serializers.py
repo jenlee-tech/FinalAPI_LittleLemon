@@ -54,3 +54,9 @@ class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = ['order', 'menuitem', 'quantity', 'unit_price', 'price']
+
+
+class OrderPutSerializer(serializers.ModelSerializer):
+    class Meta():
+        model = Order
+        fields = ['delivery_crew']
