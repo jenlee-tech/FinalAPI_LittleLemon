@@ -227,6 +227,17 @@ class OrderItemViewSet(viewsets.ModelViewSet):
         order.save()
         return JsonResponse(status=201, data={'message': str(crew.username)+' was assigned to order #'+str(order.id)})
 
+    def delete(self, request, *args, **kwargs):
+        if request.user.groups.filter(name='Manager').exists():
+            instance = self.get_object()
+            if not instance:
+                return Response({"message": "This item doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                instance.delete()
+                return Response({"message": "Item deleted successfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": "You do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
+
 
 class CategoryItemsView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
