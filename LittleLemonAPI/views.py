@@ -398,3 +398,17 @@ def managers(request):
                 managers_group.user_set.remove(user)
                 return Response({"message": "ok - the user was removed from the manager group"}, status=status.HTTP_200_OK)
         return Response({"message": "error"}, status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST', 'DELETE', 'GET'])
+@permission_classes([IsAdminUser, IsManager])
+def manager_delivery(request):
+
+    if request.method == 'GET':
+        # Retrieve the "Deliverer" group
+        deliverer_group = Group.objects.get(name="Deliverer")
+
+        deliverer_users = deliverer_group.user_set.all()
+
+        serialized_data = UserSerializer(deliverer_users, many=True).data
+        return Response(serialized_data)
