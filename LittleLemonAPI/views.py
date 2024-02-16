@@ -365,8 +365,8 @@ def throttle_check_authenticated(request):
 # /api/groups/manager/users endpoint
 
 
-@api_view(['POST', 'DELETE'])
-@permission_classes([IsAdminUser])
+@api_view(['POST', 'DELETE', 'GET'])
+@permission_classes([IsAdminUser, IsManager])
 def managers(request):
     username = request.data["username"]
     if username:
