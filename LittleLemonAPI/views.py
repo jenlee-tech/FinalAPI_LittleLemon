@@ -368,15 +368,29 @@ def throttle_check_authenticated(request):
 @api_view(['POST', 'DELETE', 'GET'])
 @permission_classes([IsAdminUser, IsManager])
 def managers(request):
-    username = request.data["username"]
-    if username:
-        user = get_object_or_404(User, username=username)
-        managers = Group.objects.get(name="Manager")
-        if request.method == 'POST':
-            managers.user_set.add(user)
-            return Response({"message": "ok - the user was added"})
-        elif request.method == 'DELETE':
-            managers.user_set.remove(user)
-            return Response({"message": "ok - the user was removed from the manager group"})
+    if request.method == 'GET':
+        # Retrieve the "Manager" group
+        managers_group = Group.objects.get(name="Manager")
 
-    return Response({"message": "error"}, status.HTTP_400_BAD_REQUEST)
+        # Retrieve all users who belong to the "Manager" group
+        manager_users = managers_group.user_set.all()
+
+        # Serialize the manager_users queryset if needed
+
+        from .serializers import UserSerializer
+        serialized_data = UserSerializer(manager_users, many=True).data
+
+        return Response(serialized_data)
+
+    elif request.method == 'POST' or request.method == 'DELETE':
+        username = request.data.get("username")
+        if username:
+            user = get_object_or_404(User, username=username)
+            managers_group = Group.objects.get(name="Manager")
+            if request.method == 'POST':
+                managers_group.user_set.add(user)
+                return Response({"message": "ok - the user was added"})
+            elif request.method == 'DELETE':
+                managers_group.user_set.remove(user)
+                return Response({"message": "ok - the user was removed from the manager group"})
+        return Response({"message": "error"}, status.HTTP_400_BAD_REQUEST)
