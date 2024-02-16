@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from .models import MenuItem, Category, Cart, Order, OrderItem
-from .serializers import MenuItemSerializer, CategoryItemsSerializer, CartItemSerializer, OrderSerializer, OrderItemSerializer, UserSerializer, OrderPutSerializer
+from .serializers import MenuItemSerializer, CategoryItemsSerializer, CartItemSerializer, OrderSerializer, OrderItemSerializer, UserSerializer, OrderStatusSerializer
 from rest_framework import generics, viewsets, status
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage
@@ -198,8 +198,8 @@ class OrderViewSet(generics.ListCreateAPIView):
 
     def patch(self, request, *args, **kwargs):
         user = request.user
+        order_id = request.data.get('id')
         if user.groups.filter(name="Manager").exists():
-            order_id = request.data.get('id')
             if order_id is not None:
                 try:
                     # Retrieve the order object based on the provided id
@@ -216,8 +216,39 @@ class OrderViewSet(generics.ListCreateAPIView):
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response("Order id is missing from the payload", status=status.HTTP_400_BAD_REQUEST)
+        # else:
+        #     return Response("You are not authoritze to update the order", status=status.HTTP_403_FORBIDDEN)
+
+        elif user.groups.filter(name="Deliverer").exists():
+            user = request.user
+            deliverer_id = request.data.get('delivery_crew')
+            requested_order = Order.objects.filter(
+                delivery_crew_id=user, id=order_id)
+
+            if requested_order is not None:
+                try:
+                    order = Order.objects.get(
+                        delivery_crew_id=user, id=order_id)
+                except Order.DoesNotExist:
+                    return Response(f"Order with id {order_id} does not exist", status=status.HTTP_404_NOT_FOUND)
+
+                # allowed_fields = ['status', 'id', 'delivery_crew']
+                # for field in request.data.keys():
+                #     if field not in allowed_fields:
+                #         return Response("Deliverer can only update the status field", status=status.HTTP_403_FORBIDDEN)
+
+                # Update the order object with data from request.data
+                serializer = OrderStatusSerializer(
+                    order, data=request.data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                    return Response(serializer.data, status=status.HTTP_200_OK)
+                else:
+                    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(f"you are not allowed to edit other Deliverer's orders, this is the deliverer_crew id: {deliverer_id} and this is the user: {user}", status=status.HTTP_403_FORBIDDEN)
         else:
-            return Response("Hello! - Not authorized to update for this user...", status=status.HTTP_400_BAD_REQUEST)
+            return Response("You cannot update the order", status=status.HTTP_403_FORBIDDEN)
 
     def put(self, request, *args, **kwargs):
         user = request.user

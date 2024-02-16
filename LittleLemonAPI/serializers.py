@@ -57,7 +57,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
         fields = ['order', 'menuitem', 'quantity', 'unit_price', 'price']
 
 
-class OrderPutSerializer(serializers.ModelSerializer):
+class OrderStatusSerializer(serializers.ModelSerializer):
     class Meta():
         model = Order
-        fields = ['delivery_crew']
+        fields = ['status']
