@@ -22,5 +22,6 @@ urlpatterns = [
     path('throttle-check-authenticated', views.throttle_check_authenticated),
     path('groups/manager/users/', views.managers),
     path('groups/delivery-crew/users/', views.manager_delivery),
+    path('groups/delivery-crew/users/<int:pk>', views.manager_delivery_remove),
 
 ]

@@ -400,31 +400,48 @@ def managers(request):
         return Response({"message": "error"}, status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['POST', 'DELETE', 'GET'])
+@api_view(['POST', 'GET'])
 @permission_classes([IsAdminUser, IsManager])
 def manager_delivery(request):
-
+    deliverer_group = Group.objects.get(name="Deliverer")
     if request.method == 'GET':
         # Retrieve the "Deliverer" group
-        deliverer_group = Group.objects.get(name="Deliverer")
 
         deliverer_users = deliverer_group.user_set.all()
 
         serialized_data = UserSerializer(deliverer_users, many=True).data
         return Response(serialized_data)
 
-    elif request.method == "POST" or request.method == 'DELETE':
+    elif request.method == "POST":
         username = request.data.get("username")
         if username:
             try:
                 user = User.objects.get(username=username)
             except User.DoesNotExist:
                 return Response({"message": f"Username {username} was not found"}, status=status.HTTP_404_NOT_FOUND)
-            deliverer_group = Group.objects.get(name="Deliverer")
-            if request.method == 'POST':
-                deliverer_group.user_set.add(user)
-                return Response({"message": "ok - the user was added to the Deliverer group"}, status=status.HTTP_201_CREATED)
-            elif request.method == 'DELETE':
-                deliverer_group.user_set.remove(user)
-                return Response({"message": "ok - the user was removed from the deliverer group"}, status=status.HTTP_200_OK)
+            # deliverer_group = Group.objects.get(name="Deliverer")
+            deliverer_group.user_set.add(user)
+            return Response({"message": "ok - the user was added to the Deliverer group"}, status=status.HTTP_201_CREATED)
         return Response({"message": "error"}, status.HTTP_400_BAD_REQUEST)
+    return Response({"message": "error"}, status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAdminUser, IsManager])
+def manager_delivery_remove(request, pk):
+
+    deliverer_group = Group.objects.get(name="Deliverer")
+    if pk:
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({"message": f"Username {user} was not found"}, status=status.HTTP_404_NOT_FOUND)
+
+         # Check if the user is in the Deliverer group
+        if user.groups.filter(name="Deliverer").exists():
+            # Remove the user from the Deliverer group
+            deliverer_group.user_set.remove(user)
+            return Response({"message": "ok - the user was removed from the deliverer group"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": f"User with ID {pk} is not in the Deliverer group"}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"message": "error"}, status=status.HTTP_400_BAD_REQUEST)
