@@ -385,8 +385,12 @@ def managers(request):
     elif request.method == 'POST' or request.method == 'DELETE':
         username = request.data.get("username")
         if username:
-            user = get_object_or_404(User, username=username)
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                return Response({"message": f"Username {username} was not found"}, status=status.HTTP_404_NOT_FOUND)
             managers_group = Group.objects.get(name="Manager")
+
             if request.method == 'POST':
                 managers_group.user_set.add(user)
                 return Response({"message": "ok - the user was added"}, status=status.HTTP_201_CREATED)
