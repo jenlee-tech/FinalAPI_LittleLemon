@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.permissions import IsAdminUser
 from django.contrib.auth.models import User, Group
-from .permissions import IsManager, IsCustomer
+from .permissions import IsManager
 
 
 class MenuItemsViewSet(viewsets.ModelViewSet):
@@ -389,8 +389,8 @@ def managers(request):
             managers_group = Group.objects.get(name="Manager")
             if request.method == 'POST':
                 managers_group.user_set.add(user)
-                return Response({"message": "ok - the user was added"})
+                return Response({"message": "ok - the user was added"}, status=status.HTTP_201_CREATED)
             elif request.method == 'DELETE':
                 managers_group.user_set.remove(user)
-                return Response({"message": "ok - the user was removed from the manager group"})
+                return Response({"message": "ok - the user was removed from the manager group"}, status=status.HTTP_200_OK)
         return Response({"message": "error"}, status.HTTP_400_BAD_REQUEST)
