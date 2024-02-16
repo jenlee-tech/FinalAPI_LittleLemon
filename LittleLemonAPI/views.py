@@ -413,15 +413,18 @@ def manager_delivery(request):
         serialized_data = UserSerializer(deliverer_users, many=True).data
         return Response(serialized_data)
 
-    elif request.method == "POST":
+    elif request.method == "POST" or request.method == 'DELETE':
         username = request.data.get("username")
         if username:
             try:
                 user = User.objects.get(username=username)
             except User.DoesNotExist:
                 return Response({"message": f"Username {username} was not found"}, status=status.HTTP_404_NOT_FOUND)
-
             deliverer_group = Group.objects.get(name="Deliverer")
-            deliverer_group.user_set.add(user)
-            return Response({"message": "ok - the user was added to the Deliverer group"}, status=status.HTTP_201_CREATED)
+            if request.method == 'POST':
+                deliverer_group.user_set.add(user)
+                return Response({"message": "ok - the user was added to the Deliverer group"}, status=status.HTTP_201_CREATED)
+            elif request.method == 'DELETE':
+                deliverer_group.user_set.remove(user)
+                return Response({"message": "ok - the user was removed from the deliverer group"}, status=status.HTTP_200_OK)
         return Response({"message": "error"}, status.HTTP_400_BAD_REQUEST)
