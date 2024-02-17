@@ -125,17 +125,17 @@ class CartItemViewSet(generics.RetrieveUpdateDestroyAPIView):
         if request.user.groups.filter(name="Customer").exists():
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return Response({"message": "U do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"message": "You do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
 
     def post(self, request):
         if request.user.groups.filter(name="Customer").exists():
             serializer = CartItemSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response("Hello! - Not authorized...", status=status.HTTP_400_BAD_REQUEST)
+            return Response("Hello! - You are not authorized to do this...", status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
         if request.user.groups.filter(name="Customer").exists():
