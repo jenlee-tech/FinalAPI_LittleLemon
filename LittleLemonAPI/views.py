@@ -448,3 +448,23 @@ def manager_delivery_remove(request, pk):
         else:
             return Response({"message": f"User with ID {pk} is not in the Deliverer group"}, status=status.HTTP_400_BAD_REQUEST)
     return Response({"message": "error"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAdminUser, IsManager])
+def manager_manager_remove(request, pk):
+    manager_group = Group.objects.get(name="Manager")
+    if pk:
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return Response({"message": f"Username {user} was not found"}, status=status.HTTP_404_NOT_FOUND)
+
+         # Check if the user is in the Deliverer group
+        if user.groups.filter(name="Manager").exists():
+            # Remove the user from the Deliverer group
+            manager_group.user_set.remove(user)
+            return Response({"message": "ok - the user was removed from the Manager group"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"message": f"User with ID {pk} is not in the Manager group"}, status=status.HTTP_400_BAD_REQUEST)
+    return Response({"message": "error"}, status=status.HTTP_400_BAD_REQUEST)
