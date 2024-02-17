@@ -61,3 +61,9 @@ class OrderStatusSerializer(serializers.ModelSerializer):
     class Meta():
         model = Order
         fields = ['status']
+
+
+class OrderPutSerializer(serializers.ModelSerializer):
+    class Meta():
+        model = Order
+        fields = ['delivery_crew']

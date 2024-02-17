@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from .models import MenuItem, Category, Cart, Order, OrderItem
-from .serializers import MenuItemSerializer, CategoryItemsSerializer, CartItemSerializer, OrderSerializer, OrderItemSerializer, UserSerializer, OrderStatusSerializer
+from .serializers import MenuItemSerializer, CategoryItemsSerializer, CartItemSerializer, OrderSerializer, OrderItemSerializer, UserSerializer, OrderStatusSerializer, OrderPutSerializer
 from rest_framework import generics, viewsets, status
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage
