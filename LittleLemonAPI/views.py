@@ -56,10 +56,9 @@ class MenuItemsViewSet(viewsets.ModelViewSet):
     @permission_classes([IsAuthenticated])
     def post(self, request, *args, **kwargs):
         if request.user.groups.filter(name="Manager").exists():
-            def create(self, request, *args, **kwargs):
-                serialized_item = MenuItemSerializer(data=request.data)
-                serialized_item.is_valid(raise_exception=True)
-                serialized_item.save()
+            serialized_item = MenuItemSerializer(data=request.data)
+            serialized_item.is_valid(raise_exception=True)
+            serialized_item.save()
             return Response(serialized_item.data, status.HTTP_201_CREATED)
         else:
             return Response({"message": "You do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
