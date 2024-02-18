@@ -50,9 +50,21 @@ class IsManager(permissions.BasePermission):
             return False
 
 
-class isDeliverer(permissions.BasePermission):
+class IsDeliverer(permissions.BasePermission):
     message = "You do not have permission to perform this action."
 
     def has_permission(self, request, view):
         if request.user.groups.filter(name='Deliverer').exists():
             return True
+        else:
+            return False
+
+
+class IsCustomer(permissions.BasePermission):
+    message = "You do not have permission to perform this action."
+
+    def has_permission(self, request, view):
+        if request.user.groups.filter(name='Customer').exists():
+            return True
+        else:
+            return False

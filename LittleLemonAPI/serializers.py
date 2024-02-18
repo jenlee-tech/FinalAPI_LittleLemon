@@ -40,7 +40,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cart
-        fields = ['order', 'user', 'menuitem',
+        fields = ['user', 'menuitem',
                   'quantity', 'unit_price', 'price']
 
 

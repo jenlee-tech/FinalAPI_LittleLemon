@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.permissions import IsAdminUser
 from django.contrib.auth.models import User, Group
-from .permissions import IsManager
+from .permissions import IsManager, IsCustomer
 
 
 class MenuItemsViewSet(viewsets.ModelViewSet):
@@ -111,50 +111,41 @@ class SingleMenuItemViewSet(generics.RetrieveUpdateDestroyAPIView):
 class CartItemViewSet(generics.RetrieveUpdateDestroyAPIView):
     queryset = Cart.objects.all()
     serializer_class = CartItemSerializer
+    permission_classes = [IsAuthenticated, IsCustomer]
 
-    @permission_classes([IsAuthenticated])
     def get(self, request):
         user = request.user
         carts = Cart.objects.filter(user=user)
         serializer = CartItemSerializer(carts, many=True)
-        if request.user.groups.filter(name="Customer").exists():
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response({"message": "You do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        if request.user.groups.filter(name="Customer").exists():
-            serializer = CartItemSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response("Hello! - You are not authorized to do this...", status=status.HTTP_400_BAD_REQUEST)
+        serializer = CartItemSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
-        if request.user.groups.filter(name="Customer").exists():
-            # Extract attributes from request payload
-            user_id = request.data.get('user')
-            menuitem_id = request.data.get('menuitem')
+        # Extract attributes from request payload
+        user_id = request.data.get('user')
+        menuitem_id = request.data.get('menuitem')
 
-            # Validate user_id and menuitem_id
-            if not user_id or not menuitem_id:
-                return Response("User ID and MenuItem ID are required", status=status.HTTP_400_BAD_REQUEST)
+        # Validate user_id and menuitem_id
+        if not user_id or not menuitem_id:
+            return Response("User ID and MenuItem ID are required", status=status.HTTP_400_BAD_REQUEST)
 
-            # Filter queryset based on payload attributes
-            queryset = Cart.objects.filter(
-                user_id=user_id, menuitem_id=menuitem_id)
+        # Filter queryset based on payload attributes
+        queryset = Cart.objects.filter(
+            user_id=user_id, menuitem_id=menuitem_id)
 
-            # Check if any items match the queryset
-            if queryset.exists():
-                # Delete items matching the queryset
-                queryset.delete()
-                return Response({"message": "Item deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
-            else:
-                return Response("No items to delete", status=status.HTTP_400_BAD_REQUEST)
+        # Check if any items match the queryset
+        if queryset.exists():
+            # Delete items matching the queryset
+            queryset.delete()
+            return Response({"message": "Item deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response("Not authorized", status=status.HTTP_403_FORBIDDEN)
+            return Response("No items to delete", status=status.HTTP_400_BAD_REQUEST)
 
 
 class OrderViewSet(generics.ListCreateAPIView):
@@ -164,12 +155,10 @@ class OrderViewSet(generics.ListCreateAPIView):
 
     def get(self, request):
         user = request.user
-
         if request.user.groups.filter(name="Customer").exists():
             orders = Order.objects.filter(user=user)
             serializer = OrderSerializer(orders, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
         elif request.user.groups.filter(name="Deliverer").exists():
             orders = Order.objects.filter(delivery_crew_id=user)
             serializer = OrderSerializer(orders, many=True)
@@ -210,8 +199,6 @@ class OrderViewSet(generics.ListCreateAPIView):
                     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response("Order id is missing from the payload", status=status.HTTP_400_BAD_REQUEST)
-        # else:
-        #     return Response("You are not authoritze to update the order", status=status.HTTP_403_FORBIDDEN)
 
         elif user.groups.filter(name="Deliverer").exists():
             user = request.user
@@ -225,13 +212,6 @@ class OrderViewSet(generics.ListCreateAPIView):
                         delivery_crew_id=user, id=order_id)
                 except Order.DoesNotExist:
                     return Response(f"Order with id {order_id} does not exist", status=status.HTTP_404_NOT_FOUND)
-
-                # allowed_fields = ['status', 'id', 'delivery_crew']
-                # for field in request.data.keys():
-                #     if field not in allowed_fields:
-                #         return Response("Deliverer can only update the status field", status=status.HTTP_403_FORBIDDEN)
-
-                # Update the order object with data from request.data
                 serializer = OrderStatusSerializer(
                     order, data=request.data, partial=True)
                 if serializer.is_valid():
