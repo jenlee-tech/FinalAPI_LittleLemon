@@ -20,6 +20,12 @@ class MenuItemsViewSet(viewsets.ModelViewSet):
     ordering_fields = ['price', 'category']
     search_fields = ['title', 'category__title']
 
+    def get_permissions(self):
+        permission_classes = []
+        if self.request.method == 'POST':
+            permission_classes = [IsAuthenticated, IsManager]
+        return [permission() for permission in permission_classes]
+
     def get(self, request, *args, **kwargs):
         if (request.method == 'GET'):
             # example query strings - this is for api/menu-items?category=Appetizer
@@ -53,15 +59,11 @@ class MenuItemsViewSet(viewsets.ModelViewSet):
             serialized_item = MenuItemSerializer(items, many=True)
             return Response(serialized_item.data)
 
-    @permission_classes([IsAuthenticated])
     def post(self, request, *args, **kwargs):
-        if request.user.groups.filter(name="Manager").exists():
-            serialized_item = MenuItemSerializer(data=request.data)
-            serialized_item.is_valid(raise_exception=True)
-            serialized_item.save()
-            return Response(serialized_item.data, status.HTTP_201_CREATED)
-        else:
-            return Response({"message": "You do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
+        serialized_item = MenuItemSerializer(data=request.data)
+        serialized_item.is_valid(raise_exception=True)
+        serialized_item.save()
+        return Response(serialized_item.data, status.HTTP_201_CREATED)
 
 
 class SingleMenuItemViewSet(generics.RetrieveUpdateDestroyAPIView):
