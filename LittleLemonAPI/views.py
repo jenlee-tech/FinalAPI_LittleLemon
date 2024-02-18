@@ -69,50 +69,43 @@ class MenuItemsViewSet(viewsets.ModelViewSet):
 class SingleMenuItemViewSet(generics.RetrieveUpdateDestroyAPIView):
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsManager]
 
     def delete(self, request, *args, **kwargs):
-        if request.user.groups.filter(name="Manager").exists():
-            # 'pk' is the primary key parameter from the URL
-            # item_id = kwargs.get('pk')
-            instance = self.get_object()
-            if not instance:
-                return Response({"message": "This item doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
-            else:
-                instance.delete()
-                return Response({"message": "Item deleted successfully"}, status=status.HTTP_200_OK)
+        # 'pk' is the primary key parameter from the URL
+        # item_id = kwargs.get('pk')
+        instance = self.get_object()
+        if not instance:
+            return Response({"message": "This item doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
         else:
-            return Response({"message": "You do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
+            instance.delete()
+            return Response({"message": "Item deleted successfully"}, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
-        if request.user.groups.filter(name="Manager").exists():
-            # 'pk' is the primary key parameter from the URL
-            item_id = kwargs.get('pk')
-            if not MenuItem.objects.filter(pk=item_id).exists():
-                return Response({"message": "This item doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
-            serialized_item = MenuItemSerializer(
-                self.get_object(), data=request.data)
-            serialized_item.is_valid(raise_exception=True)
-            serialized_item.save()
-            return Response(serialized_item.data, status=status.HTTP_200_OK)
-        else:
-            return Response({"message": "You do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
+
+        # 'pk' is the primary key parameter from the URL
+        item_id = kwargs.get('pk')
+        if not MenuItem.objects.filter(pk=item_id).exists():
+            return Response({"message": "This item doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
+        serialized_item = MenuItemSerializer(
+            self.get_object(), data=request.data)
+        serialized_item.is_valid(raise_exception=True)
+        serialized_item.save()
+        return Response(serialized_item.data, status=status.HTTP_200_OK)
 
     def put(self, request, *args, **kwargs):
-        if request.user.groups.filter(name="Manager").exists():
-            # 'pk' is the primary key parameter from the URL
-            item_id = kwargs.get('pk')
-            instance = self.get_object()
 
-            if not instance:
-                return Response({"message": "This item doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
+        # 'pk' is the primary key parameter from the URL
+        item_id = kwargs.get('pk')
+        instance = self.get_object()
 
-            serialized_item = MenuItemSerializer(instance, data=request.data)
-            serialized_item.is_valid(raise_exception=True)
-            serialized_item.save()
-            return Response(serialized_item.data, status=status.HTTP_200_OK)
-        else:
-            return Response({"message": "You do not have permission to do this"}, status=status.HTTP_403_FORBIDDEN)
+        if not instance:
+            return Response({"message": "This item doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
+
+        serialized_item = MenuItemSerializer(instance, data=request.data)
+        serialized_item.is_valid(raise_exception=True)
+        serialized_item.save()
+        return Response(serialized_item.data, status=status.HTTP_200_OK)
 
 
 class CartItemViewSet(generics.RetrieveUpdateDestroyAPIView):

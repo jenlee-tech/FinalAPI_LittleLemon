@@ -46,6 +46,8 @@ class IsManager(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user.groups.filter(name='Manager').exists():
             return True
+        else:
+            return False
 
 
 class isDeliverer(permissions.BasePermission):
