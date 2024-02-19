@@ -11,7 +11,6 @@ urlpatterns = [
     path('categories/', views.CategoryItemsView.as_view()),
     path('categories/<int:pk>', views.SingleCategoryViewSet.as_view()),
     path('cart/menu-items/', views.CartItemViewSet.as_view()),
-    path('cart/menu-items/<int:pk>', views.CartItemViewSet.as_view()),
     path('orders/', views.OrderViewSet.as_view()),
     path('orders/<int:pk>/',
          views.OrderItemViewSet.as_view({'get': 'list', 'patch': 'update', 'put': 'update'})),

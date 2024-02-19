@@ -129,21 +129,16 @@ class CartItemViewSet(generics.RetrieveUpdateDestroyAPIView):
     def delete(self, request):
         # Extract attributes from request payload
         user_id = request.data.get('user')
-        menuitem_id = request.data.get('menuitem')
 
-        # Validate user_id and menuitem_id
-        if not user_id or not menuitem_id:
-            return Response("User ID and MenuItem ID are required", status=status.HTTP_400_BAD_REQUEST)
-
-        # Filter queryset based on payload attributes
+        # Filter queryset based on user
         queryset = Cart.objects.filter(
-            user_id=user_id, menuitem_id=menuitem_id)
+            user_id=user_id)
 
         # Check if any items match the queryset
         if queryset.exists():
             # Delete items matching the queryset
             queryset.delete()
-            return Response({"message": "Item deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "All the item(s) in the cart have been deleted."}, status=status.HTTP_200_OK)
         else:
             return Response("No items to delete", status=status.HTTP_400_BAD_REQUEST)
 
