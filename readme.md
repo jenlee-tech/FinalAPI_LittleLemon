@@ -2,7 +2,7 @@
 
 ## Project Overview:
 
-This is an interesting project involving creating an API for the Little Lemon Restaurant.
+This is an interesting project involving the creation of an API for the Little Lemon Restaurant.
 
 ## Important:
 
@@ -19,6 +19,6 @@ The following usernames can be used to testing:
 - JasonDeliverer
 - admin
 
-The password for all of them: course\*1
+The password for all of them: **course\*1**
 
-Each user has a token - log into the admin panel to view the tokens.
+Each of the above user has a token - log into the admin panel and copy and paste the tokens in the Insomnia tool so that endpoints can be tested.
