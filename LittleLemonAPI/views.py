@@ -300,16 +300,6 @@ class SingleCategoryViewSet(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CategoryItemsSerializer
 
 
-# this checks if an authenticated user belongs in a group
-@api_view()
-@permission_classes([IsAuthenticated])
-def manager_view(request):
-    if request.user.groups.filter(name="Manager").exists():
-        return Response({"message": "Success! = The manager should see this"})
-    else:
-        return Response({"message": "You are not authorized to view this"}, 403)
-
-
 @api_view()
 # controlling the throttle rates for anonymous users
 @throttle_classes([AnonRateThrottle])
