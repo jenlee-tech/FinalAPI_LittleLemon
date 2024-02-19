@@ -7,15 +7,17 @@ This is an interesting project involving creating an API for the Little Lemon Re
 ## Important:
 
 The following groups were made:
-Manager
-Deliverer
-Customer
+
+- Manager
+- Deliverer
+- Customer
 
 The following usernames can be used to testing:
-MeghanManager
-JaneCustomer
-JasonDeliverer
-admin
+
+- MeghanManager
+- JaneCustomer
+- JasonDeliverer
+- admin
 
 The password for all of them: course\*1
 
