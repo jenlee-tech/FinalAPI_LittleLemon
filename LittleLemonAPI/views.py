@@ -165,7 +165,7 @@ class OrderViewSet(generics.ListCreateAPIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        if request.user.groups.filter(name="Customer").exists():
+        if IsCustomer().has_permission(request, self):
             serializer = OrderSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
@@ -178,7 +178,7 @@ class OrderViewSet(generics.ListCreateAPIView):
     def patch(self, request, *args, **kwargs):
         user = request.user
         order_id = request.data.get('id')
-        if user.groups.filter(name="Manager").exists():
+        if IsManager().has_permission(request, self):
             if order_id is not None:
                 try:
                     # Retrieve the order object based on the provided id
@@ -196,7 +196,7 @@ class OrderViewSet(generics.ListCreateAPIView):
             else:
                 return Response("Order id is missing from the payload", status=status.HTTP_400_BAD_REQUEST)
 
-        elif user.groups.filter(name="Deliverer").exists():
+        elif IsDeliverer().has_permission(request, self):
             user = request.user
             deliverer_id = request.data.get('delivery_crew')
             requested_order = Order.objects.filter(
@@ -221,8 +221,7 @@ class OrderViewSet(generics.ListCreateAPIView):
             return Response("You cannot update the order", status=status.HTTP_403_FORBIDDEN)
 
     def put(self, request, *args, **kwargs):
-        user = request.user
-        if user.groups.filter(name="Manager").exists():
+        if IsManager().has_permission(request, self):
             order_id = request.data.get('id')
             if order_id is not None:
                 try:
@@ -299,12 +298,6 @@ class CategoryItemsView(generics.ListCreateAPIView):
 class SingleCategoryViewSet(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategoryItemsSerializer
-
-
-@api_view()
-@permission_classes([IsAuthenticated])
-def secret(request):
-    return Response({"message": "Some secret message"})
 
 
 # this checks if an authenticated user belongs in a group

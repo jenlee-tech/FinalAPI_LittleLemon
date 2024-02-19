@@ -14,7 +14,6 @@ urlpatterns = [
     path('orders/', views.OrderViewSet.as_view()),
     path('orders/<int:pk>/',
          views.OrderItemViewSet.as_view({'get': 'list', 'patch': 'update', 'put': 'update'})),
-    path('secret', views.secret),
     path('api-token-auth/', obtain_auth_token),
     path('manager-view/', views.manager_view),
     path('throttle-check', views.throttle_check),
