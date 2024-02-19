@@ -72,8 +72,6 @@ class SingleMenuItemViewSet(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated, IsManager]
 
     def delete(self, request, *args, **kwargs):
-        # 'pk' is the primary key parameter from the URL
-        # item_id = kwargs.get('pk')
         instance = self.get_object()
         if not instance:
             return Response({"message": "This item doesn't exist"}, status=status.HTTP_404_NOT_FOUND)
@@ -82,7 +80,6 @@ class SingleMenuItemViewSet(generics.RetrieveUpdateDestroyAPIView):
             return Response({"message": "Item deleted successfully"}, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
-
         # 'pk' is the primary key parameter from the URL
         item_id = kwargs.get('pk')
         if not MenuItem.objects.filter(pk=item_id).exists():
@@ -94,9 +91,6 @@ class SingleMenuItemViewSet(generics.RetrieveUpdateDestroyAPIView):
         return Response(serialized_item.data, status=status.HTTP_200_OK)
 
     def put(self, request, *args, **kwargs):
-
-        # 'pk' is the primary key parameter from the URL
-        item_id = kwargs.get('pk')
         instance = self.get_object()
 
         if not instance:
@@ -129,11 +123,9 @@ class CartItemViewSet(generics.RetrieveUpdateDestroyAPIView):
     def delete(self, request):
         # Extract attributes from request payload
         user_id = request.data.get('user')
-
         # Filter queryset based on user
         queryset = Cart.objects.filter(
             user_id=user_id)
-
         # Check if any items match the queryset
         if queryset.exists():
             # Delete items matching the queryset
@@ -324,13 +316,8 @@ def managers(request):
     if request.method == 'GET':
         # Retrieve the "Manager" group
         managers_group = Group.objects.get(name="Manager")
-
-        # Retrieve all users who belong to the "Manager" group
         manager_users = managers_group.user_set.all()
-
         # Serialize the manager_users queryset if needed
-
-        from .serializers import UserSerializer
         serialized_data = UserSerializer(manager_users, many=True).data
 
         return Response(serialized_data)
@@ -358,10 +345,7 @@ def managers(request):
 def manager_delivery(request):
     deliverer_group = Group.objects.get(name="Deliverer")
     if request.method == 'GET':
-        # Retrieve the "Deliverer" group
-
         deliverer_users = deliverer_group.user_set.all()
-
         serialized_data = UserSerializer(deliverer_users, many=True).data
         return Response(serialized_data)
 
@@ -393,9 +377,7 @@ def manager_delivery_remove(request, pk):
         except User.DoesNotExist:
             return Response({"message": f"Username {user} was not found"}, status=status.HTTP_404_NOT_FOUND)
 
-         # Check if the user is in the Deliverer group
         if user.groups.filter(name="Deliverer").exists():
-            # Remove the user from the Deliverer group
             deliverer_group.user_set.remove(user)
             return Response({"message": "ok - the user was removed from the deliverer group"}, status=status.HTTP_200_OK)
         else:
@@ -413,9 +395,7 @@ def manager_manager_remove(request, pk):
         except User.DoesNotExist:
             return Response({"message": f"Username {user} was not found"}, status=status.HTTP_404_NOT_FOUND)
 
-         # Check if the user is in the Deliverer group
         if user.groups.filter(name="Manager").exists():
-            # Remove the user from the Deliverer group
             manager_group.user_set.remove(user)
             return Response({"message": "ok - the user was removed from the Manager group"}, status=status.HTTP_200_OK)
         else:
