@@ -285,11 +285,13 @@ class OrderItemViewSet(viewsets.ModelViewSet):
 class CategoryItemsView(generics.ListCreateAPIView):
     queryset = Category.objects.all()
     serializer_class = CategoryItemsSerializer
+    permission_classes = [IsAdminUser, IsAuthenticated]
 
 
 class SingleCategoryViewSet(generics.RetrieveUpdateDestroyAPIView):
     queryset = Category.objects.all()
     serializer_class = CategoryItemsSerializer
+    permission_classes = [IsAdminUser, IsAuthenticated]
 
 
 @api_view()
