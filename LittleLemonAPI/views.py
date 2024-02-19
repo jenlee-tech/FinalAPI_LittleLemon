@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 from rest_framework.permissions import IsAdminUser
 from django.contrib.auth.models import User, Group
-from .permissions import IsManager, IsCustomer
+from .permissions import IsManager, IsCustomer, IsDeliverer
 
 
 class MenuItemsViewSet(viewsets.ModelViewSet):
@@ -150,15 +150,16 @@ class OrderViewSet(generics.ListCreateAPIView):
 
     def get(self, request):
         user = request.user
-        if request.user.groups.filter(name="Customer").exists():
+        # if request.user.groups.filter(name="Customer").exists():
+        if IsCustomer().has_permission(request, self):
             orders = Order.objects.filter(user=user)
             serializer = OrderSerializer(orders, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        elif request.user.groups.filter(name="Deliverer").exists():
+        elif IsDeliverer().has_permission(request, self):
             orders = Order.objects.filter(delivery_crew_id=user)
             serializer = OrderSerializer(orders, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
+        elif IsManager().has_permission(request, self):
             orders = Order.objects.all()
             serializer = OrderSerializer(orders, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
