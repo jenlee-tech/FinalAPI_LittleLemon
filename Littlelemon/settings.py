@@ -156,6 +156,10 @@ REST_FRAMEWORK = {
 }
 DJOSER = {
     'USER_ID_FIELD': 'username',
+    'PERMISSIONS': {
+        # allows user registration without Authentication credentials
+        'user_list': ['rest_framework.permissions.AllowAny'],
+    }
 }
 
 # SIMPLE_JWT = {
